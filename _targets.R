@@ -9,7 +9,11 @@ library(tarchetypes)
 
 # Set target options:
 tar_option_set(
-  packages = c("qs"),
+  packages = c("qs",
+    "readxl",
+    "data.table",
+    "Hmisc"
+  ),
   format = "qs"
   #
   # For distributed computing in tar_make(), supply a {crew} controller
@@ -49,13 +53,75 @@ tar_source()
 
 # Replace the target list below with your own:
 list(
-  tar_target(
-    name = data,
-    command = tibble(x = rnorm(100), y = rnorm(100))
-    # format = "feather" # efficient storage for large data frames
+  ### 1. files ###
+  tar_qs(
+    f_routine,
+    "data/04-routine/FICHEIRO OMS BEATRIZ -250923_as_17_08.xlsx"
   ),
+  ### 2. load data ###
+  # 2.1. load the health facilities list
   tar_target(
-    name = model,
-    command = coefficients(lm(y ~ x, data = data))
+    hf,
+    load_hf(f_routine)
+  ),
+  # 2.2. load the estimated population
+  tar_target(
+    estimated_population,
+    load_estimated_population(f_routine)
+  ),
+  # 2.3. load the estimated population adm3 level
+  tar_target(
+    estimated_population_adm3,
+    load_estimated_population_adm3(f_routine)
+  ),
+
+  ### 3. data management ###
+  # 3.1. adm1 from hf
+  tar_target(
+    adm1_from_hf,
+    hf[, .(adm1 = unique(adm1))]
+  ),
+  # 3.2. adm2 from hf
+  tar_target(
+    adm2_from_hf,
+    hf[, .(adm2 = unique(adm2))]
+  ),
+  # 3.3. hf from hf
+  tar_target(
+    hf_from_hf,
+    hf[, .(hf= unique(hf))]
+  ),
+  # 3.4. adm1 from estimated_population
+  tar_target(
+    adm1_from_estimated_population,
+    estimated_population[, .(adm1 = unique(adm1))]
+  ),
+  # 3.5. adm1 from estimated_population_adm2
+  tar_target(
+    adm1_from_estimated_population_adm3,
+    estimated_population_adm3[, .(adm1 = unique(adm1))]
+  ),
+  # 3.6. adm2 from estimated_population_adm2
+  tar_target(
+    adm3_from_estimated_population_adm3,
+    estimated_population_adm3[, .(adm3 = unique(adm3))]
+  ),
+
+  ### 4. data comparison ###
+  # 4.1. adm1 from hf and estimated_population, check if they are identical to each other
+  tar_target(
+    adm1_from_hf_estimated_population,
+    setdiff(
+      adm1_from_hf$adm1,
+      adm1_from_estimated_population$adm1
+    )
+  ),
+  # 4.2 adm1 from adm1_from_hf_estimated_population and adm1_from_estimated_population_adm2, check if they are identical to each other
+  tar_target(
+    adm1_from_hf_estimated_population_adm3,
+    setdiff(
+      adm1_from_hf$adm1,
+      adm1_from_estimated_population_adm3$adm1
+    )
   )
 )
