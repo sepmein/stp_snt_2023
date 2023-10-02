@@ -9,9 +9,9 @@ Clickup was used to track the progress: [ClickUp STP Analysis Tracker](https://a
 
 GitHub Repository:
 
-I've already set up a coding repository for the analysis, which you can access here: [STP Analysis GitHub Repository](https://github.com/sepmein/stp_snt_2023). 
+[STP Analysis GitHub Repository](https://github.com/sepmein/stp_snt_2023). 
 
-I will also be adding issues and improvements specific to the code in this repository: [Code Issues and Improvements](https://github.com/sepmein/stp_snt_2023/issues). 
+[Code Issues and Improvements](https://github.com/sepmein/stp_snt_2023/issues).
 
 ## Replicate of this analysis
 
