@@ -5,12 +5,12 @@
 
 # Load packages required to define the pipeline:
 library(targets)
-# library(tarchetypes) # Load other packages as needed.
+library(tarchetypes)
 
 # Set target options:
 tar_option_set(
-  packages = c("tibble") # packages that your targets need to run
-  # format = "qs", # Optionally set the default storage format. qs is fast.
+  packages = c("qs"),
+  format = "qs"
   #
   # For distributed computing in tar_make(), supply a {crew} controller
   # as discussed at https://books.ropensci.org/targets/crew.html.
