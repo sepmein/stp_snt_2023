@@ -47,3 +47,13 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# MACOS
+.DS_Store
+
+# data folder
+data/
+
+# result folder
+results/
+
