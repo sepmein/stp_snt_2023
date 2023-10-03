@@ -188,6 +188,19 @@ erDiagram
         int positive
         float average_anopheles
     }
+    vector {
+        string adm1 PK, FK
+        string adm2 PK, FK
+        int year PK
+        string month PK
+        int mos_adult_inside
+        int mos_adult_outside
+        int lav_1
+        int lav_2
+        int lav_3
+        int lav_4
+        int pupa
+    }
     adm1 ||--o| adm2: contains
     adm2 ||--o| hf: contains
     adm2 ||--o| adm3: contains
@@ -202,9 +215,15 @@ erDiagram
     adm2 ||--o| elimination: has
     adm2 ||--o| irs: has
     adm2 ||--o| lsm: has
+    adm2 ||--o| vector: has
     
     hf ||--o| passive_cases_2022: has
     hf ||--o| reative_cases_2022: has
     hf ||--o| intervention: has
     hf ||--o| routine: has
+
+
+
+
+
 ```
