@@ -110,6 +110,26 @@ list(
     itn_campaign,
     load_itn_campaign(f_routine)
   ),
+  # 2.11. load ITN routine
+  tar_target(
+    itn_routine,
+    load_itn_routine(f_routine)
+  ),
+  # 2.12. load lsm
+  tar_target(
+    lsm,
+    load_lsm(f_routine)
+  ),
+  # 2.13. load vector
+  tar_target(
+    vector,
+    load_vector(f_routine)
+  ),
+  # 2.14. load vector resistance
+  tar_target(
+    vector_resistance,
+    load_vector_resistance(f_routine)
+  ),
 
   ##### 3. unique values #####
   # 3.1. adm1 from hf
@@ -207,6 +227,41 @@ list(
     adm1_from_itn_campaign,
     itn_campaign[, .(adm1 = unique(adm1))]
   ),
+  # 3.20. adm1 from itn routine
+  tar_target(
+    adm1_from_itn_routine,
+    itn_routine[, .(adm1 = unique(adm1))]
+  ),
+  # 3.21. adm1 from lsm
+  tar_target(
+    adm1_from_lsm,
+    lsm[, .(adm1 = unique(adm1))]
+  ),
+  # 3.22. adm2 from lsm
+  tar_target(
+    adm2_from_lsm,
+    lsm[, .(adm2 = unique(adm2))]
+  ),
+  # 3.23. adm1 from vector
+  tar_target(
+    adm1_from_vector,
+    vector[, .(adm1 = unique(adm1))]
+  ),
+  # 3.24. adm2 from vector
+  tar_target(
+    adm2_from_vector,
+    vector[, .(adm2 = unique(adm2))]
+  ),
+  # 3.25. adm1 from vector resistance
+  tar_target(
+    adm1_from_vector_resistance,
+    vector_resistance[, .(adm1 = unique(adm1))]
+  ),
+  # 3.26. adm2 from vector resistance
+  tar_target(
+    adm2_from_vector_resistance,
+    vector_resistance[, .(adm2 = unique(adm2))]
+    ),
 
   ##### 4. comparison #####
   # 4.1. adm1 from hf and estimated_population, check if they are identical to each other
@@ -328,7 +383,61 @@ list(
       adm1_from_hf$adm1,
       adm1_from_itn_campaign$adm1
     )
+  ),
+  # 4.16. adm1 from hf and itn_routine, check if they are identical to each other
+  tar_target(
+    adm1_from_hf_itn_routine,
+    setdiff(
+      adm1_from_hf$adm1,
+      adm1_from_itn_routine$adm1
+    )
+  ),
+  # 4.17. adm1 from hf and lsm, check if they are identical to each other
+  tar_target(
+    adm1_from_hf_lsm,
+    setdiff(
+      adm1_from_hf$adm1,
+      adm1_from_lsm$adm1
+    )
+  ),
+  # 4.18. adm2 from hf and lsm, check if they are identical to each other
+  tar_target(
+    adm2_from_hf_lsm,
+    setdiff(
+      adm2_from_hf$adm2,
+      adm2_from_lsm$adm2
+    )
+  ),
+  # 4.19. adm1 from hf and vector, check if they are identical to each other
+  tar_target(
+    adm1_from_hf_vector,
+    setdiff(
+      adm1_from_hf$adm1,
+      adm1_from_vector$adm1
+    )
+  ),
+  # 4.20. adm2 from hf and vector, check if they are identical to each other
+  tar_target(
+    adm2_from_hf_vector,
+    setdiff(
+      adm2_from_hf$adm2,
+      adm2_from_vector$adm2
+    )
+  ),
+  # 4.21. adm1 from hf and vector_resistance, check if they are identical to each other
+  tar_target(
+    adm1_from_hf_vector_resistance,
+    setdiff(
+      adm1_from_hf$adm1,
+      adm1_from_vector_resistance$adm1
+    )
+  ),
+  # 4.22. adm2 from hf and vector_resistance, check if they are identical to each other
+  tar_target(
+    adm2_from_hf_vector_resistance,
+    setdiff(
+      adm2_from_hf$adm2,
+      adm2_from_vector_resistance$adm2
+    )
   )
-
-
 )

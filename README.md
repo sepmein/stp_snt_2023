@@ -201,6 +201,15 @@ erDiagram
         int lav_4
         int pupa
     }
+    resistance {
+        string adm1 PK, FK
+        string adm2 PK, FK
+        int year PK
+        string month PK
+        string insecticide
+        float mortality
+        string resistance
+    }
     adm1 ||--o| adm2: contains
     adm2 ||--o| hf: contains
     adm2 ||--o| adm3: contains
@@ -216,14 +225,10 @@ erDiagram
     adm2 ||--o| irs: has
     adm2 ||--o| lsm: has
     adm2 ||--o| vector: has
+    adm2 ||--o| resistance: has
     
     hf ||--o| passive_cases_2022: has
     hf ||--o| reative_cases_2022: has
     hf ||--o| intervention: has
     hf ||--o| routine: has
-
-
-
-
-
 ```
