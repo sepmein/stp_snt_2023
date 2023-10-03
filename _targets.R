@@ -9,10 +9,12 @@ library(tarchetypes)
 
 # Set target options:
 tar_option_set(
-  packages = c("qs",
+  packages = c(
+    "qs",
     "readxl",
     "data.table",
-    "Hmisc"
+    "Hmisc",
+    "sf"
   ),
   format = "qs"
   #
@@ -53,13 +55,26 @@ tar_source()
 
 # Replace the target list below with your own:
 list(
-  ##### 1. files #####
+  #### 1. files ####
+  # 1.1. routine database from the country version 2023.10.1
   tar_qs(
     f_routine,
     "data/04-routine/FICHEIRO OMS BEATRIZ -250923_as_17_08.xlsx"
   ),
+  # 1.2a. shapefile adm1 level extracted from WHO gishub
+  tar_target(
+    f_shp_adm1_who,
+    "data/01-shapefile/gishub/STP_adm1.shp",
+    format = "file"
+  ),
+  # 1.2b. shapefile adm2 level extracted from WHO gishub
+  tar_target(
+    f_shp_adm2_who,
+    "data/01-shapefile/gishub/STP_adm2.shp",
+    format = "file"
+  ),
 
-  ##### 2. load data #####
+  #### 2. load data ####
   # 2.1. load the health facilities list
   tar_target(
     hf,
@@ -131,7 +146,26 @@ list(
     load_vector_resistance(f_routine)
   ),
 
-  ##### 3. unique values #####
+  #### 2a. load shapefile ####
+  # 2a.1 load adm1 shapefile
+  tar_target(
+    shp_adm1_who,
+    st_read(f_shp_adm1_who)
+  ),
+  # 2a.2. load adm2 shapefile
+  tar_target(
+    shp_adm2_who,
+    st_read(f_shp_adm2_who)
+  ),
+
+  #### 3. unique values ####
+  # 3.0.1. adm1 from shp_adm1_who
+  tar_target(
+    adm1,
+    extract_adm1(shp_adm2_who)
+  ),
+  # 3.0.3. adm1-adm2-hf from hf, adm1, adm2
+
   # 3.1. adm1 from hf
   tar_target(
     adm1_from_hf,
@@ -263,7 +297,7 @@ list(
     vector_resistance[, .(adm2 = unique(adm2))]
     ),
 
-  ##### 4. comparison #####
+  #### 4. comparison ####
   # 4.1. adm1 from hf and estimated_population, check if they are identical to each other
   tar_target(
     adm1_from_hf_estimated_population,

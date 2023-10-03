@@ -1,3 +1,5 @@
+#### 1. database ####
+
 #' Load Health Facility List from routine database
 #' 
 #' This function will read the excel from routine database and return a data frame, transform it into a data.table, then use the function called upData from Hmisc package to do the renaming of table.
@@ -136,4 +138,15 @@ load_vector_resistance <- function(d) {
             ), adm1 = as.factor(adm1), adm2 = as.factor(adm2), month = as.factor(month), insecticide = as.factor(insecticide),
             resistance = as.factor(resistance)
         )
+}
+
+#### 2. shapefile ####
+#' extract adm1-adm2 combination from who gishub shapefile
+#' The level of adm2 in WHO is actually adm1 in database, district level
+extract_adm1 <- function(shp) {
+    shp <- shp |>
+        sf::st_drop_geometry() |>
+        as.data.table()
+    shp <- shp[, .(GUID, ADM2_NAME, ADM2_VIZ_N)]
+    setnames(shp, c("id", "adm1", "adm1_vis"))
 }
