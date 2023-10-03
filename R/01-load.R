@@ -135,7 +135,9 @@ load_routine <- function(d) {
             `Total morte por malária <5` = maldth_u5,
             `Total morte por malária >=5` = maldth_ov5,
             `Morte  por malária Gravidas` = maldth_p
-            )
+            ),
+            adm1 = as.factor(adm1),
+            hf = as.factor(hf)
         )
 }
 
@@ -165,4 +167,26 @@ load_elimination <- function(d) {
             conf_2018 = as.numeric(conf_2018)
             )
         
+}
+
+#' load case level data for 2022
+load_case_2022 <- function(d) {
+    dt <- read_excel(d, sheet = "Passiva Casos + 2022") |>
+        as.data.table() |>
+        upData(
+            rename = .q(
+                `DATA` = month,
+                `UNIDADE SANITÁRIA` = hf,
+                `DISTRITO DO DOENTE` = adm1,
+                `LOCALIDADE DO DOENTE` = adm2,
+                `IDADE` = age,
+                `SEXO` = sex
+            ),
+            month = as.factor(month),
+            adm1 = as.factor(adm1),
+            adm2 = as.factor(adm2),
+            hf = as.factor(hf),
+            age = as.numeric(age),
+            sex = as.factor(sex)
+        )
 }
