@@ -190,3 +190,119 @@ load_case_2022 <- function(d) {
             sex = as.factor(sex)
         )
 }
+
+#‘ active case data for 2022
+load_active_cases_2022 <- function(d) {
+    dt <- read_excel(d, sheet = "Vig. reactiva 2022") |>
+        as.data.table() |>
+        upData(
+            rename = .q(
+                `DATA` = month,
+                `DISTRITO DO DOENTE` = adm1,
+                `LOCALIDADE` = adm2,
+                `UNIDADE SANITÁRIA` = hf,
+                `IDADE` = age,
+                `SEXO` = sex
+            ),
+            adm1 = as.factor(adm1),
+            adm2 = as.factor(adm2),
+            month = as.factor(month),
+            hf = as.factor(hf),
+            age = as.numeric(age),
+            sex = as.factor(sex)
+        )
+}
+
+#' load routine intervention
+load_routine_intervention <- function(d) {
+    dt <- read_excel(d, sheet = "Intervenções de rotina") |>
+        as.data.table() |>
+        upData(
+            rename = .q(
+                `Distrito` = adm1,
+                `Nome do estabelecimento de saúde` = hf,
+                `Ano` = year,
+                `Mês` = month,
+                `Número de mulheres que visitaram as CPN1` = anc1,
+                `Número de mulheres que visitaram as CPN2` = anc2,
+                `Número de mulheres que visitaram as CPN3` = anc3,
+                `Número de mulheres que visitaram as CPN4` = anc4,
+                `Número de mulheres cobertas com TPIg1` = ipt1,
+                `Número de mulheres cobertas com TPIg2` = ipt2,
+                `Número de mulheres cobertas com TPIg3` = ipt3,
+                `Número de mulheres cobertas com TPIg4` = ipt4,
+                `Número de MTILDs distribuídos durante as visitas prenatais` = itn_p,
+                `Número de MILDAs distribuídos através do sistema de vacinação` = itn_v,
+                `Número de rupturas de stock registadas por mês` = stock
+            ),
+            adm1 = as.factor(adm1),
+            hf = as.factor(hf),
+            year = as.numeric(year),
+            month = as.factor(month),
+            anc1 = as.numeric(anc1),
+            anc2 = as.numeric(anc2),
+            anc3 = as.numeric(anc3),
+            anc4 = as.numeric(anc4),
+            ipt1 = as.numeric(ipt1),
+            ipt2 = as.numeric(ipt2),
+            ipt3 = as.numeric(ipt3),
+            ipt4 = as.numeric(ipt4),
+            itn_p = as.numeric(itn_p),
+            itn_v = as.numeric(itn_v),
+            stock = as.numeric(stock)
+        )
+}
+
+#' load irs
+load_irs <- function(d) {
+    dt <- read_excel(d, sheet = "PID 2019-2022") |>
+        as.data.table() |>
+        upData(
+            rename = .q(
+                `Distrito` = adm1,
+                `Localidades` = adm2,
+                `Ano` = year,
+                `Cilco 1(mês)` = cycle_1,
+                `Ciclo2 (mês)` = cycle_2,
+                `Tratadas` = treated,
+                `Fechadas` = closed,
+                `Recusadas` = refused,
+                `Não Tratada por Outras Rasões` = not_treated,
+                `Total` = irs_planned,
+                `Cobertura` = cover,
+                `Desabitadas` = uninhabited,
+                `Outras constr.` = other,
+                `Total Geral` = total,
+                `População protegida` = pop,
+                `Insecticida (frasco)` = insecticide
+            ),
+            adm1 = as.factor(adm1),
+            adm2 = as.factor(adm2),
+            year = as.numeric(year),
+            cycle_1 = as.numeric(cycle_1),
+            cycle_2 = as.numeric(cycle_2),
+            treated = as.numeric(treated),
+            closed = as.numeric(closed),
+            refused = as.numeric(refused),
+            not_treated = as.numeric(not_treated),
+            irs_planned = as.numeric(irs_planned),
+            cover = as.numeric(cover),
+            uninhabited = as.numeric(uninhabited)
+        )
+}
+
+#' load itn campaign
+load_itn_campaign <- function(d) {
+    dt <- read_excel(
+        d,
+        sheet = "MTILD (Massa)", skip = 1
+    ) |>
+        as.data.table() |>
+        upData(
+            rename = .q(
+                Distrito = adm1,
+                Total = itn
+            ),
+            adm1 = as.factor(adm1)
+        )
+}
