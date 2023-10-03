@@ -88,3 +88,81 @@ load_estimated_population_adm3 <- function(d) {
             `Pop Feminino 2023` = pop_f_2023),
             adm1 = as.factor(adm1), adm3 = as.factor(adm3))
 }
+
+# ‘ Load routine data
+load_routine <- function(d) {
+    dt <- read_excel(d, sheet = "Dados rotina agregados (3)", range = "A1:AN2343") |>
+        as.data.table() |>
+        upData(
+            rename = .q(
+            `Nome do distrito` = adm1,
+            `Nome da US` = hf,
+            `Mes` = month,
+            `Ano` = year,
+            `Total casos suspeitos` = susp,
+            `Total suspeitos <5` = susp_u5,
+            `Total suspeitos >=5` = susp_ov5,
+            `Gravidas suspeitas` = susp_p,
+            `Total testados` = test,
+            `Total testados <5` = test_u5,
+            `Total testados >=5` = test_ov5,
+            `Gravidas testadas` = test_p,
+            `Total casos positivos` = conf,
+            `Total positivos <5` = conf_u5,
+            `Total positivos >=5` = conf_ov5,
+            `Gravidas testadas positivas` = conf_p,
+            `Total casos negativos` = negative,
+            `Total negativos <5` = negative_u5,
+            `Total negativos >=5` = negative_ov5,
+            `Gravidas testadas negativo` = negative_p,
+            `Total casos tratados` = treat,
+            `Total casos tratados <5` = treat_u5,
+            `Total casos tratados >=5` = treat_ov5,
+            `Gravidas tratadas` = treat_p,
+            `Total pacientes internados` = maladm,
+            `Total internados <5` = maladm_u5,
+            `Total internado>=5` = maladm_ov5,
+            `Gravidas internada` = maladm_p,
+            `Total pacientes com malaria grave admitidas` = severe,
+            `Total malária grave <5` = severe_u5,
+            `Total malária grave >=5` = severe_ov5,
+            `Gravidas com malária grave` = severe_p,
+            `Total mortes` = alldth,
+            `Total morte <5` = alldth_u5,
+            `Total morte >=5` = alldth_ov5,
+            `Morte Gravidas` = alldth_p,
+            `Total mortes malaria` = maldth,
+            `Total morte por malária <5` = maldth_u5,
+            `Total morte por malária >=5` = maldth_ov5,
+            `Morte  por malária Gravidas` = maldth_p
+            )
+        )
+}
+
+#' load elimination status
+#' 
+load_elimination <- function(d) {
+    dt <- read_excel(d, sheet = "Casos por localidade 2018-2022") |>
+        as.data.table() |>
+        upData(
+            rename = .q(
+                `Nº de Ordem` = n,`Nº de Foco` = n_foco,
+                `Distrito` = adm1,
+                `Localidade` = adm2,
+                `2018` = `conf_2018`,
+                `2019` = `conf_2019`,
+                `2020` = `conf_2020`,
+                `2021` = `conf_2021`,
+                `2022` = `conf_2022`,
+                `Classificação` = elimination
+            ),
+            n = as.factor(n),
+            n_foco = as.factor(n_foco),
+            adm1 = as.factor(adm1),
+            adm2 = as.factor(adm2),
+            conf_2018 = fifelse(conf_2018 == "Total casos negativos ",
+            0, conf_2018),
+            conf_2018 = as.numeric(conf_2018)
+            )
+        
+}

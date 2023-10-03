@@ -53,12 +53,13 @@ tar_source()
 
 # Replace the target list below with your own:
 list(
-  ### 1. files ###
+  ##### 1. files #####
   tar_qs(
     f_routine,
     "data/04-routine/FICHEIRO OMS BEATRIZ -250923_as_17_08.xlsx"
   ),
-  ### 2. load data ###
+
+  ##### 2. load data #####
   # 2.1. load the health facilities list
   tar_target(
     hf,
@@ -74,8 +75,18 @@ list(
     estimated_population_adm3,
     load_estimated_population_adm3(f_routine)
   ),
+  # 2.4. load the routine database
+  tar_target(
+    routine,
+    load_routine(f_routine)
+  ),
+  # 2.5. load elimination
+  tar_target(
+    elimination,
+    load_elimination(f_routine)
+  ),
 
-  ### 3. data management ###
+  ##### 3. unique values #####
   # 3.1. adm1 from hf
   tar_target(
     adm1_from_hf,
@@ -89,7 +100,7 @@ list(
   # 3.3. hf from hf
   tar_target(
     hf_from_hf,
-    hf[, .(hf= unique(hf))]
+    hf[, .(hf = unique(hf))]
   ),
   # 3.4. adm1 from estimated_population
   tar_target(
@@ -106,8 +117,28 @@ list(
     adm3_from_estimated_population_adm3,
     estimated_population_adm3[, .(adm3 = unique(adm3))]
   ),
+  # 3.7. adm1 from routine
+  tar_target(
+    adm1_from_routine,
+    routine[, .(adm1 = unique(adm1))]
+  ),
+  # 3.8. hf from routine
+  tar_target(
+    hf_from_routine,
+    routine[, .(hf = unique(hf))]
+  ),
+  # 3.9. adm1 from elimination
+  tar_target(
+    adm1_from_elimination,
+    elimination[, .(adm1 = unique(adm1))]
+  ),
+  # 3.10. adm2 from elimination
+  tar_target(
+    adm2_from_elimination,
+    elimination[, .(adm2 = unique(adm2))]
+  ),
 
-  ### 4. data comparison ###
+  ##### 4. comparison #####
   # 4.1. adm1 from hf and estimated_population, check if they are identical to each other
   tar_target(
     adm1_from_hf_estimated_population,
@@ -122,6 +153,38 @@ list(
     setdiff(
       adm1_from_hf$adm1,
       adm1_from_estimated_population_adm3$adm1
+    )
+  ),
+  # 4.3. adm1 from hf and routine, check if they are identical to each other
+  tar_target(
+    adm1_from_hf_routine,
+    setdiff(
+      adm1_from_hf$adm1,
+      adm1_from_routine$adm1
+    )
+  ),
+  # 4.4. hf from hf and routine, check if they are identical to each other
+  tar_target(
+    hf_from_hf_routine,
+    setdiff(
+      hf_from_hf$hf,
+      hf_from_routine$hf
+    )
+  ),
+  # 4.5. adm1 from hf and elimination, check if they are identical to each other
+  tar_target(
+    adm1_from_hf_elimination,
+    setdiff(
+      adm1_from_hf$adm1,
+      adm1_from_elimination$adm1
+    )
+  ),
+  # 4.6. adm2 from hf and elimination, check if they are identical to each other
+  tar_target(
+    adm2_from_hf_elimination,
+    setdiff(
+      adm2_from_hf$adm2,
+      adm2_from_elimination$adm2
     )
   )
 )
