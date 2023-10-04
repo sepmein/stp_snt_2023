@@ -21,6 +21,7 @@ match_adm1 <- function(standard, target) {
     joined <- joined[distance > 0]
 }
 
+#' fix 
 fix_adm1 <- function(db, fuzzy_matched) {
     # db is the data.table
     # fuzzy_matched is the data.table
@@ -41,34 +42,5 @@ fix_adm1 <- function(db, fuzzy_matched) {
     # Return the new data.table
     return(joined)
 
-
-}
-# compare_columns <- function(dt1, dt2) {
-#     # Perform a fuzzy join using the Jaro-Winkler distance
-#     joined_dt <- stringdist_inner_join(dt1, dt2, by = "column1", method = "jw")
-
-#     # Filter out the exact matches
-#     non_exact_matches <- joined_dt[joined_dt$column1.x != joined_dt$column1.y, ]
-
-#     # Find the most similar string for each original string
-#     results <- non_exact_matches[, .SD[which.min(stringdist)], by = column1.x]
-
-#     # Rename the columns for clarity
-#     setnames(results, c("origin", "matched"))
-
-#     return(results)
-# }
-
-# Call the function
-# similar_strings <- compare_columns(dt1, dt2)
-# print(similar_strings)
-
-#### 1. adm1 ####
-# 1. compare the adm1 standard list
-# 2. create a list of A map to B
-# 3. import the list
-# 4. perform the data change
-# 5. link them to the original data
-replace_adm1 <- function(target, fix) {
 
 }
