@@ -148,5 +148,5 @@ extract_adm1 <- function(shp) {
         sf::st_drop_geometry() |>
         as.data.table()
     shp <- shp[, .(GUID, ADM2_NAME, ADM2_VIZ_N)]
-    setnames(shp, c("id", "adm1", "adm1_vis"))
+    setnames(shp, c("id", "adm1_capital", "adm1"))
 }

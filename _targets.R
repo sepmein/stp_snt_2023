@@ -14,7 +14,8 @@ tar_option_set(
     "readxl",
     "data.table",
     "Hmisc",
-    "sf"
+    "sf",
+    "fuzzyjoin"
   ),
   format = "qs"
   #
@@ -72,6 +73,11 @@ list(
     f_shp_adm2_who,
     "data/01-shapefile/gishub/STP_adm2.shp",
     format = "file"
+  ),
+  # 1.3.1. fix adm1 for hf
+  tar_qs(
+    f_fix_adm1_hf,
+    ""
   ),
 
   #### 2. load data ####
@@ -473,5 +479,158 @@ list(
       adm2_from_hf$adm2,
       adm2_from_vector_resistance$adm2
     )
+  ),
+
+  #### 5. fuzzy match ####
+  ##### 5.1. adm1 #####
+  # 5.1.1. hf
+  tar_target(
+    fuzzy_adm1_hf,
+    match_adm1(adm1, adm1_from_hf)
+  ),
+  # 5.1.2. adm1_from_estimated_population
+  tar_target(
+    fuzzy_adm1_estimated_population,
+    match_adm1(adm1, adm1_from_estimated_population)
+  ),
+  # 5.1.3. adm1_from_estimated_population_adm3
+  tar_target(
+    fuzzy_adm1_estimated_population_adm3,
+    match_adm1(adm1, adm1_from_estimated_population_adm3)
+  ),
+  # 5.1.4. adm1_from_routine
+  tar_target(
+    fuzzy_adm1_routine,
+    match_adm1(adm1, adm1_from_routine)
+  ),
+  # 5.1.5. adm1_from_elimination
+  tar_target(
+    fuzzy_adm1_elimination,
+    match_adm1(adm1, adm1_from_elimination)
+  ),
+  # 5.1.6. adm1_from_passive_cases
+  tar_target(
+    fuzzy_adm1_passive_cases,
+    match_adm1(adm1, adm1_from_passive_cases)
+  ),
+  # 5.1.7. adm1_from_active_cases
+  tar_target(
+    fuzzy_adm1_active_cases,
+    match_adm1(adm1, adm1_from_active_cases)
+  ),
+  # 5.1.8. adm1_from_routine_intervention
+  tar_target(
+    fuzzy_adm1_routine_intervention,
+    match_adm1(adm1, adm1_from_routine_intervention)
+  ),
+  # 5.1.9. adm1_from_irs
+  tar_target(
+    fuzzy_adm1_irs,
+    match_adm1(adm1, adm1_from_irs)
+  ),
+  # 5.1.10. adm1_from_itn_campaign
+  tar_target(
+    fuzzy_adm1_itn_campaign,
+    match_adm1(adm1, adm1_from_itn_campaign)
+  ),
+  # 5.1.11. adm1_from_itn_routine
+  tar_target(
+    fuzzy_adm1_itn_routine,
+    match_adm1(adm1, adm1_from_itn_routine)
+  ),
+  # 5.1.12. adm1_from_lsm
+  tar_target(
+    fuzzy_adm1_lsm,
+    match_adm1(adm1, adm1_from_lsm)
+  ),
+  # 5.1.13. adm1_from_vector
+  tar_target(
+    fuzzy_adm1_vector,
+    match_adm1(adm1, adm1_from_vector)
+  ),
+  # 5.1.14. adm1_from_vector_resistance
+  tar_target(
+    fuzzy_adm1_vector_resistance,
+    match_adm1(adm1, adm1_from_vector_resistance)
+  ),
+  ##### 5.2. adm2 #####
+
+  #### 6. manual fix ####
+  ##### 6.1. adm1 #####
+  # in adm1_from_hf_estimated_population_adm3, RAP should be Principe
+  # 6.1.1. adm1_from_hf
+  tar_target(
+    fixed_adm1_hf,
+    fix_adm1(hf, fuzzy_adm1_hf)
+  ),
+  # 6.1.2. adm1_from_estimated_population
+  tar_target(
+    fixed_adm1_estimated_population,
+    fix_adm1(estimated_population, fuzzy_adm1_estimated_population)
+  ),
+  # 6.1.3. adm1_from_estimated_population_adm3
+  tar_target(
+    fixed_adm1_estimated_population_adm3,
+    estimated_population_adm3[adm1 == "RAP", adm1 := "Principe"] |> 
+    fix_adm1(fuzzy_adm1_estimated_population_adm3)
+  ),
+  # 6.1.4. adm1_from_routine
+  tar_target(
+    fixed_adm1_routine,
+    fix_adm1(routine, fuzzy_adm1_routine)
+  ),
+  # 6.1.5. adm1_from_elimination
+  tar_target(
+    fixed_adm1_elimination,
+    fix_adm1(elimination, fuzzy_adm1_elimination)
+  ),
+  # 6.1.6. adm1_from_passive_cases
+  tar_target(
+    fixed_adm1_passive_cases,
+    fix_adm1(passive_cases, fuzzy_adm1_passive_cases)
+  ),
+  # 6.1.7. adm1_from_active_cases
+  tar_target(
+    fixed_adm1_active_cases,
+    fix_adm1(active_cases, fuzzy_adm1_active_cases)
+  ),
+  # 6.1.8. adm1_from_routine_intervention
+  tar_target(
+    fixed_adm1_routine_intervention,
+    fix_adm1(routine_intervention, fuzzy_adm1_routine_intervention)
+  ),
+  # 6.1.9. adm1_from_irs
+  tar_target(
+    fixed_adm1_irs,
+    fix_adm1(irs, fuzzy_adm1_irs)
+  ),
+  # 6.1.10. adm1_from_itn_campaign
+  tar_target(
+    fixed_adm1_itn_campaign,
+    fix_adm1(itn_campaign, fuzzy_adm1_itn_campaign)
+  ),
+  # 6.1.11. adm1_from_itn_routine
+  # in adm1_from_itn_route, there is an extra adm1 called "CNE", which might stands for National Center for Endemic Diseases (CNE) (Sao Tome and Principe). Not sure why, set CNE to NA firstly
+  tar_target(
+    fixed_adm1_itn_routine,
+    itn_routine[adm1 == "CNE", adm1 := NA_character_] |>
+    fix_adm1(fuzzy_adm1_itn_routine)
+  ),
+  # 6.1.12. adm1_from_lsm
+  tar_target(
+    fixed_adm1_lsm,
+    fix_adm1(lsm, fuzzy_adm1_lsm)
+  ),
+  # 6.1.13. adm1_from_vector
+  tar_target(
+    fixed_adm1_vector,
+    fix_adm1(vector, fuzzy_adm1_vector)
+  ),
+  # 6.1.14. adm1_from_vector_resistance
+  # in adm1_from_vector_resistance, RAP should be Principe, also manually exclude the "N/A" from the list
+  tar_target(
+    fixed_adm1_vector_resistance,
+    vector_resistance[adm1 =="RAP", adm1 :=  "Principe"][adm1 == "N/A" , adm1 := NA_character_] |>
+    fix_adm1(fuzzy_adm1_vector_resistance)
   )
 )
