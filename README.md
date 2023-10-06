@@ -232,3 +232,19 @@ erDiagram
     hf ||--o| intervention: has
     hf ||--o| routine: has
 ```
+
+### GIS
+#### Shapefiles
+
+1. aligned shapefiles
+> Problem
+
+![align_shapefiles](<documentation/1. discrepencies between adm1 adm2 and village level shapefile.png>)
+
+![align_shapefiles](<documentation/2. discrepencies between adm1 adm2 and village level shapefile.png>)
+
+Green shapefile was provided by NMCP with detailed village level of informaton. Orange one was from WHO GISHUB. The unaligned borders between the two was noticed.
+
+A aligned shapefile with adm1/adm2/adm3 level of information should be created before the analysis.
+
+> Solution
