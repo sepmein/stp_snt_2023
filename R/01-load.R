@@ -150,3 +150,21 @@ extract_adm1 <- function(shp) {
     shp <- shp[, .(GUID, ADM2_NAME, ADM2_VIZ_N)]
     setnames(shp, c("id", "adm1_capital", "adm1"))
 }
+
+#' extract adm1-adm2 combination from nmcp shapefile
+extract_adm1_adm2_nmcp <- function(shp) {
+    shp |> 
+        sf::st_drop_geometry() |>
+        distinct(adm1, adm2)
+}
+
+#' I found some of the the record are duplicates records
+#' here is the function to identify the duplicates records
+#' and classify them based on the whether or not they are
+#' adjacent to each other
+extract_duplicated_adm1_adm2_nmcp <- function(shp) {
+    #' find the adjacent records
+    dups <- shp |>
+        group_by(adm1, adm2) |>
+        filter(n() > 1)
+}

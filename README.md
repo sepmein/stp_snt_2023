@@ -232,6 +232,38 @@ erDiagram
     hf ||--o| intervention: has
     hf ||--o| routine: has
 ```
+### Match adm1, adm2 and hf
+
+Approaches used:
+
+```mermaid
+flowchart TD
+    A[adm1 shapefile] -->|Get unique adm1| B(Unique adm1 in shapefile)
+    C[routine db] -->|Get unique adm1| D(Unique adm1 in routine db)
+    B --> E{fuzzy join by string distance}
+    D --> E
+    E --> F{Remove the exact same match}
+    F --> G{Manually check and fix}
+    G --> H{Match function for routine db}
+    H --> I[Aligned adm1 for shapefile and routine]
+```
+
+```mermaid
+flowchart LR
+    A[Fix ADM1] --> B(Fix ADM2)
+    B --> C(Fix HF)
+    C
+```
+
+#### adm1
+
+#### hf
+
+1. hf in routine database
+mismatch after fuzzy matching
+
+POSTO DE QUARTEL
+
 
 ### GIS
 #### Shapefiles
@@ -243,8 +275,15 @@ erDiagram
 
 ![align_shapefiles](<documentation/2. discrepencies between adm1 adm2 and village level shapefile.png>)
 
-Green shapefile was provided by NMCP with detailed village level of informaton. Orange one was from WHO GISHUB. The unaligned borders between the two was noticed.
+Green shapefile was provided by NMCP with detailed village level of information. Orange one was from WHO GISHUB. The unaligned borders between the two was noticed.
 
 A aligned shapefile with adm1/adm2/adm3 level of information should be created before the analysis.
 
 > Solution
+
+I used the crs reprojection with the geo-referencing in QGIS to manually aligned the two islands.
+
+2. localites names same
+During the process, I found some of the localites and adm2 name are the same, but with different area. I will use the adm2 shapefile and generate a list of localites with duplicated names. Those duplicates could be treated as two classes, the first one, same name with adjacent area, the second one, same name without any adjacent area.
+
+3. check localites names with the 
