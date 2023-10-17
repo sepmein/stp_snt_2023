@@ -58,82 +58,113 @@ tar_source()
 
 # Replace the target list below with your own:
 list(
-  #### 1. files ####
-  # 1.1. routine database from the country version 2023.10.1
+  
+  #### 1. files ---------------------------------------------------------------
+  
+  ##### 1.1. routine database from the country version 2023.10.1 --------------
+  
   tar_qs(
     f_routine,
     "data/04-routine/Cópia de FICHEIRO OMS BEATRIZ -041023_Principal (1).xlsx"
   ),
-  # 1.2a. shapefile adm1 level extracted from WHO gishub
+  
+  ##### 1.2a. shapefile adm1 level extracted from WHO gishub ------------------
+  
   tar_target(
     f_shp_adm1_who,
     "data/01-shapefile/gishub/STP_adm1.shp",
     format = "file"
   ),
-  # 1.2b. shapefile adm2 level extracted from WHO gishub
+  
+  ##### 1.2b. shapefile adm2 level extracted from WHO gishub ------------------
+  
   tar_target(
     f_shp_adm2_who,
     "data/01-shapefile/gishub/STP_adm2.shp",
     format = "file"
   ),
-  # 1.2c. shapefile adm2 level from NMCP
+  ##### 1.2c. shapefile adm2 level from NMCP ----------------------------------
   tar_target(
     f_shp_adm2_nmcp,
     "data/01-shapefile/stp_nmcp_village_reprojected.shp",
     format = "file"
   ),
-  # 1.3.1. fix adm1 for hf
-  tar_qs(f_fix_adm1_hf,
-         ""),
   
   #### 2. load data ####
-  # 2.1. load the health facilities list
+  
+  ##### 2.1. health facilities list ----
+  
   tar_target(hf,
              load_hf(f_routine)),
-  # 2.2. load the estimated population
+  
+  ##### 2.2. load the estimated population ----
+  
   tar_target(estimated_population,
              load_estimated_population(f_routine)),
-  # 2.3. load the estimated population adm3 level
+  
+  ##### 2.3. estimated population adm2 level ----
+  
   tar_target(
     estimated_population_adm2,
     load_estimated_population_adm2(f_routine)
   ),
-  # 2.4. load the routine database
+  
+  ##### 2.4. routine database ----
+  
   tar_target(routine,
              load_routine(f_routine) |> 
             transform_month()),
-  # 2.5. load elimination
+  
+  ##### 2.5. elimination ----
+  
   tar_target(elimination,
              load_elimination(f_routine)),
-  # 2.6. load passive cases
+  
+  ##### 2.6. passive cases ----
+  
   tar_target(passive_cases,
              load_case_2022(f_routine) |>
                transform_month()
                ),
-  # 2.7. load active cases
+  
+  ##### 2.7. active cases ----
+  
   tar_target(active_cases,
              load_active_cases_2022(f_routine) |>
                transform_month()),
-  # 2.8. load routine intervention
+  
+  ##### 2.8. load routine intervention ----
+  
   tar_target(routine_intervention,
              load_routine_intervention(f_routine) |> 
                transform_month()),
-  # 2.9. load IRS
+  
+  ##### 2.9. load IRS ----
+  
   tar_target(irs,
              load_irs(f_routine)),
-  # 2.10. load ITN campaign
+  
+  ##### 2.10. load ITN campaign ----
+  
   tar_target(itn_campaign,
              load_itn_campaign(f_routine)),
-  # 2.11. load ITN routine
+  
+  ##### 2.11. load ITN routine ----
   # tar_target(itn_routine,
   #            load_itn_routine(f_routine)),
-  # 2.12. load lsm
+  
+  ##### 2.12. load lsm ----
+  
   tar_target(lsm,
              load_lsm(f_routine)),
-  # 2.13. load vector
+  
+  ##### 2.13. load vector ----
+  
   tar_target(vector,
              load_vector(f_routine) |> transform_month()),
-  # 2.14. load vector resistance
+  
+  ##### 2.14. load vector resistance ----
+  
   tar_target(vector_resistance,
              load_vector_resistance(f_routine) |> transform_month()),
   
@@ -156,16 +187,27 @@ list(
   #### 3. unique values ####
 
   ##### 3.1. shp, from WHO, ADM1 level --------------------------------------
+  
   # 3.0.1. adm1 from shp_adm1_who
   tar_target(adm1,
              extract_adm1(shp_adm2_who)),
   
   ##### 3.2. shp, from NMCP, ADM2 level , fixed adm1 using WHO standard ------
-  # 3.0.2. adm1-adm2 from adm1, adm2
+  
+  # adm1-adm2 from adm1, adm2
   tar_target(adm1_adm2_nmcp,
              extract_adm1_adm2_nmcp(fixed_adm1_shp_adm2_nmcp)),
   
+  # 3.22. adm1 adm1 from adm2_nmcp
+  tar_target(
+    adm1_from_shp_adm2_nmcp,
+    shp_adm2_nmcp |> st_drop_geometry() |>
+      distinct(adm1) |>
+      as.data.table()
+  ),
+  
   ##### 3.3. health facilities(the `US` tab) ----------------------------------
+  
   # 3.1. adm1 from hf
   tar_target(adm1_from_hf,
              hf[, .(adm1 = unique(adm1))]),
@@ -177,11 +219,13 @@ list(
              hf[, .(hf = unique(hf))]),
   
   ##### 3.4. estimated population ----------------------------------------------
+  
   # 3.4. adm1 from estimated_population
   tar_target(adm1_from_estimated_population,
              estimated_population[, .(adm1 = unique(adm1))]),
   
   ##### 3.5. estimated population adm2 -----------------------------------------
+  
   # 3.5. adm1 from estimated_population_adm2
   tar_target(
     adm1_from_estimated_population_adm2,
@@ -199,7 +243,7 @@ list(
     fixed_adm1_estimated_population_adm2[, .(adm1, adm2 )] |> unique()
   ),
   
-  ##### routine database ------------------------------------------------------
+  ##### 3.6. routine database --------------------------------------------------
   
   # 3.7. adm1 from routine
   tar_target(adm1_from_routine,
@@ -208,7 +252,7 @@ list(
   tar_target(hf_from_routine,
              routine[, .(hf = unique(hf))]),
   
-  ##### elimination -----------------------------------------------------------
+  ##### 3.7. elimination -------------------------------------------------------
   
   # 3.9. adm1 from elimination
   tar_target(adm1_from_elimination,
@@ -220,7 +264,7 @@ list(
   tar_target(adm1_adm2_from_elimination,
              fixed_adm1_elimination[, .(adm1, adm2 )] |> unique()),
   
-  ##### passive case data -----------------------------------------------------
+  ##### 3.8. passive case data -------------------------------------------------
   
   # 3.11. adm1 from passive case level data 2022
   tar_target(adm1_from_passive_cases,
@@ -232,7 +276,7 @@ list(
   tar_target(adm1_adm2_from_passive_cases,
              fixed_adm1_passive_cases[, .(adm1, adm2 )] |> unique()),
   
-  ##### active case -----------------------------------------------------------
+  ##### 3.9. active case -------------------------------------------------------
   
   # 3.13. adm1 from active case level data 2022
   tar_target(adm1_from_active_cases,
@@ -241,7 +285,7 @@ list(
   tar_target(adm2_from_active_cases,
              active_cases[, .(adm2 = unique(adm2))]),
   
-  #### 3.15. routine intervention ----------------------------------------------
+  ##### 3.10. routine intervention ---------------------------------------------
   
   # 3.15. adm1 from routine intervention
   tar_target(adm1_from_routine_intervention,
@@ -250,57 +294,78 @@ list(
   tar_target(hf_from_routine_intervention,
              routine_intervention[, .(hf = unique(hf))]),
   
-  #### 3.16. irs --------------------------------------------------------------
+  ##### 3.11. irs --------------------------------------------------------------
   
-  # 3.17. adm1 from irs
+  # adm1
   tar_target(adm1_from_irs,
              irs[, .(adm1 = unique(adm1))]),
-  # 3.18. adm2 from irs
+  # adm2
   tar_target(adm2_from_irs,
              irs[, .(adm2 = unique(adm2))]),
+  # adm1-adm2
+  tar_target(adm1_adm2_from_irs,
+             fixed_adm1_irs[, .(adm1, adm2 )] |> unique()),
   
-  #### 3.19 itn campaingn -----------------------------------------------------
+  ##### 3.12. itn campaingn ----------------------------------------------------
   
   # 3.19. adm1 from itn campaign
   tar_target(adm1_from_itn_campaign,
              itn_campaign[, .(adm1 = unique(adm1))]),
   
-  #### 3.20 itn routine -------------------------------------------------------
+  ##### 3.13. itn routine ------------------------------------------------------
   
   # 3.20. adm1 from itn routine
   # tar_target(adm1_from_itn_routine,
   #            itn_routine[, .(adm1 = unique(adm1))]),
   
-  #### 3.21 Larval Source management -------------------------------------------
+  ##### 3.14. Larval Source management -----------------------------------------
   
   # 3.21. adm1 from lsm
   tar_target(adm1_from_lsm,
              lsm[, .(adm1 = unique(adm1))]),
-  # 3.22. adm1 adm1 from adm2_nmcp
-  tar_target(
-    adm1_from_shp_adm2_nmcp,
-    shp_adm2_nmcp |> st_drop_geometry() |>
-      distinct(adm1) |>
-      as.data.table()
-  ),
+  
   # 3.22. adm2 from lsm
   tar_target(adm2_from_lsm,
              lsm[, .(adm2 = unique(adm2))]),
+  
+  # adm1-adm2 from lsm
+  tar_target(adm1_adm2_from_lsm,
+             fixed_adm1_lsm[, .(adm1, adm2 )] |> unique()),
+  
+  ##### 3.15. Vector -----------------------------------------------------------
+  
   # 3.23. adm1 from vector
   tar_target(adm1_from_vector,
              vector[, .(adm1 = unique(adm1))]),
+  
   # 3.24. adm2 from vector
   tar_target(adm2_from_vector,
              vector[, .(adm2 = unique(adm2))]),
+  
+  # adm1-adm2
+  tar_target(adm1_adm2_from_vector,
+             fixed_adm1_vector[, .(adm1, adm2 )] |> unique()),
+  
+  ##### 3.16. Vector Resistance ------------------------------------------------
+  
   # 3.25. adm1 from vector resistance
   tar_target(adm1_from_vector_resistance,
              vector_resistance[, .(adm1 = unique(adm1))]),
   # 3.26. adm2 from vector resistance
   tar_target(adm2_from_vector_resistance,
              vector_resistance[, .(adm2 = unique(adm2))]),
+  # adm1-adm2
+  tar_target(adm1_adm2_from_vector_resistance,
+             fixed_adm1_vector_resistance[, .(adm1, adm2 )] |> unique()),
   
   #### 4. comparison ####
-  # 4.1. adm1 from hf and estimated_population, check if they are identical to each other
+  # This section is design for compare the unique value generated from the last
+  # section with the unique value from the previous section. If they are not
+  # identical, then there is a need to align the data.
+  
+  
+  # 4.1. adm1 from hf and estimated_population, check if they are identical to 
+  # each other
   tar_target(
     adm1_from_hf_estimated_population,
     setdiff(adm1_from_hf$adm1,
@@ -435,90 +500,178 @@ list(
   
   #### 5. fuzzy match ####
   ##### 5.1. adm1 #####
-  # 5.1.1. hf
+  
+  ###### 5.1.1. hf ----
+  
   tar_target(fuzzy_adm1_hf,
              match_adm1(adm1, adm1_from_hf)),
-  # 5.1.2. adm1_from_estimated_population
+  
+  ###### 5.1.2. estimated_population ----
+  
   tar_target(
     fuzzy_adm1_estimated_population,
     match_adm1(adm1, adm1_from_estimated_population)
   ),
-  # 5.1.3. adm1_from_estimated_population_adm2
+  
+  ###### 5.1.3. estimated_population_adm2 ----
+ 
   tar_target(
     fuzzy_adm1_estimated_population_adm2,
     match_adm1(adm1, adm1_from_estimated_population_adm2)
   ),
-  # 5.1.4. adm1_from_routine
+  
+  ###### 5.1.4. routine ----
+ 
   tar_target(fuzzy_adm1_routine,
              match_adm1(adm1, adm1_from_routine)),
-  # 5.1.5. adm1_from_elimination
+  
+  ###### 5.1.5. elimination ----
+ 
   tar_target(
     fuzzy_adm1_elimination,
     match_adm1(adm1, adm1_from_elimination)
   ),
-  # 5.1.6. adm1_from_passive_cases
+  
+  ###### 5.1.6. passive_cases ----
+ 
   tar_target(
     fuzzy_adm1_passive_cases,
     match_adm1(adm1, adm1_from_passive_cases)
   ),
-  # 5.1.7. adm1_from_active_cases
+  
+  ###### 5.1.7. active_cases ----
+ 
   tar_target(
     fuzzy_adm1_active_cases,
     match_adm1(adm1, adm1_from_active_cases)
   ),
-  # 5.1.8. adm1_from_routine_intervention
+  
+  ###### 5.1.8. routine_intervention ----
+ 
   tar_target(
     fuzzy_adm1_routine_intervention,
     match_adm1(adm1, adm1_from_routine_intervention)
   ),
-  # 5.1.9. adm1_from_irs
+  
+  ###### 5.1.9. irs ----
+ 
   tar_target(fuzzy_adm1_irs,
              match_adm1(adm1, adm1_from_irs)),
-  # 5.1.10. adm1_from_itn_campaign
+  
+  ###### 5.1.10. itn_campaign ----
+ 
   tar_target(
     fuzzy_adm1_itn_campaign,
     match_adm1(adm1, adm1_from_itn_campaign)
   ),
-  # 5.1.11. adm1_from_itn_routine
+  
+  ###### 5.1.11. itn_routine ----
+ 
   # tar_target(
   #   fuzzy_adm1_itn_routine,
   #   match_adm1(adm1, adm1_from_itn_routine)
   # ),
-  # 5.1.12. adm1_from_lsm
+  
+  ###### 5.1.12. lsm ----
+ 
   tar_target(fuzzy_adm1_lsm,
              match_adm1(adm1, adm1_from_lsm)),
-  # 5.1.13. adm1_from_vector
+  
+  ###### 5.1.13. vector ----
+ 
   tar_target(fuzzy_adm1_vector,
              match_adm1(adm1, adm1_from_vector)),
-  # 5.1.14. adm1_from_vector_resistance
+  
+  ###### 5.1.14. vector_resistance ----
+ 
   tar_target(
     fuzzy_adm1_vector_resistance,
     match_adm1(adm1, adm1_from_vector_resistance)
   ),
-  # 5.1.15. adm1_from_shp_adm2_nmcp
+  
+  ###### 5.1.15. shp_adm2_nmcp ----
+ 
   tar_target(
     fuzzy_adm1_shp_adm2_nmcp,
     match_adm1(adm1, adm1_from_shp_adm2_nmcp)
   ),
-  ##### 5.2. adm2 #####
+  
+  ##### 5.2. adm1 adm2 #####
 
-  ###### 5.2.1 population adm2 ---------------------------------------------------
+  ###### 5.2.1 population  ---------------------------------------------------
+  
   tar_target(
     fuzzy_adm2_pop,
     match_adm2(adm1_adm2_nmcp, adm1_adm2_from_estimated_population_adm2)
   ),
-  ###### 5.2.2. elimination adm2 -------------------------------------------------
+  # export
+  tar_target(
+    export_fuzzy_adm2_pop,
+    fuzzy_adm2_pop |> fwrite("report/02-fuzzy/adm2/fuzzy_adm2_pop.csv")
+  ),
+  
+  ###### 5.2.2. elimination  -------------------------------------------------
+  
   tar_target(
     # adm1_adm2_from_elimination
     fuzzy_adm2_elimination,
     match_adm2(adm1_adm2_nmcp, adm1_adm2_from_elimination)
   ),
-  ###### 5.2.3. adm1_adm2_from_passive_cases adm2 -------------------------------------------------
+  # export
   tar_target(
-    # adm1_adm2_from_passive_cases
-    fuzzy_adm2_passive_cases,
-    match_adm2(adm1_adm2_nmcp, adm1_adm2_from_passive_cases)
+    export_fuzzy_adm2_elimination,
+    fuzzy_adm2_elimination |> 
+      fwrite("report/02-fuzzy/adm2/fuzzy_adm2_elimination.csv")
   ),
+  
+  ###### 5.2.3. irs -------------------------------------------------
+  
+  tar_target(
+    fuzzy_adm2_irs,
+    match_adm2(adm1_adm2_nmcp, adm1_adm2_from_irs)
+  ),
+  # export
+  tar_target(
+    export_fuzzy_adm2_irs,
+    fuzzy_adm2_irs |> fwrite("report/02-fuzzy/adm2/fuzzy_adm2_irs.csv")
+  ),
+  
+  ###### 5.2.4. lsm --------------------------------------------------
+  
+  tar_target(
+    fuzzy_adm2_lsm,
+    match_adm2(adm1_adm2_nmcp, adm1_adm2_from_lsm)
+  ),
+  # export
+  tar_target(
+    export_fuzzy_adm2_lsm,
+    fuzzy_adm2_lsm |> fwrite("report/02-fuzzy/adm2/fuzzy_adm2_lsm.csv")
+  ),
+  
+  ###### 5.2.5. vector --------------------------------------------------
+  
+  tar_target(
+    fuzzy_adm2_vector,
+    match_adm2(adm1_adm2_nmcp, adm1_adm2_from_vector)
+  ),
+  # export
+  tar_target(
+    export_fuzzy_adm2_vector,
+    fuzzy_adm2_vector |> fwrite("report/02-fuzzy/adm2/fuzzy_adm2_vector.csv")
+  ),
+  
+  ###### 5.2.6. vector resistance ----------------------------------------
+  
+  tar_target(
+    fuzzy_adm2_vector_resistance,
+    match_adm2(adm1_adm2_nmcp, adm1_adm2_from_vector_resistance)
+  ),
+  # export
+  tar_target(
+    export_fuzzy_adm2_vector_resistance,
+    fuzzy_adm2_vector_resistance |> 
+      fwrite("report/02-fuzzy/adm2/fuzzy_adm2_vector_resistance.csv")
+  ), 
   
   ##### 5.3. hf -----------------------------------------------------------------
   
