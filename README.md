@@ -32,16 +32,16 @@ Database relationships
 title: STP SNT 2023
 ---
 erDiagram
-    adm1 {
+    adm1["adm1 distrito"] {
         uuid id PK, UK
         string adm1 PK, UK
     }
-    adm2 {
+    adm2["adm2 localidade"] {
         uuid id PK, UK
         string adm1 PK
         string adm2 PK
     }
-    hf {
+    hf["US"] {
         uuid id PK, UK
         string adm1 PK
         string adm2 PK
@@ -51,13 +51,6 @@ erDiagram
         float lat
         float long
         string comment
-    }
-    adm3 {
-        uuid id PK, UK
-        string adm1 PK
-        string adm2 PK
-        string hf PK
-        string adm3 PK
     }
     hf_raw {
         string adm1 PK, FK
@@ -99,7 +92,7 @@ erDiagram
         int alldth
         int maldth
     }
-    elimination {
+    elimination["Casos por localidade"] {
         int no
         string no_order
         string adm1 PK, FK
@@ -111,7 +104,7 @@ erDiagram
         int cases_2022
         string elimination
     }
-    passive_cases_2022 {
+    passive_cases_2022["Passiva Casos"] {
         string month PK
         string hf PK, FK
         string adm1 PK, FK
@@ -119,7 +112,7 @@ erDiagram
         int age
         string sex
     }
-    reative_cases_2022 {
+    reative_cases_2022["Vig. reactiva"] {
         string month PK
         string hf PK, FK
         string adm1 PK, FK
@@ -127,7 +120,7 @@ erDiagram
         int age
         string sex
     }
-    intervention {
+    intervention["Intervenções de rotina"] {
         string adm1 PK, FK
         string hf PK, FK
         int year PK
@@ -144,7 +137,7 @@ erDiagram
         int itn_v
         int stock
     }
-    irs {
+    irs["PID"] {
         string adm1 PK, FK
         string adm2 PK, FK
         int year PK
@@ -162,7 +155,7 @@ erDiagram
         int pop
         int insecticide
     }
-    itn_campaign {
+    itn_campaign["MTILD (Massa)"] {
         string adm1 PK, FK
         int itn
     }
@@ -174,7 +167,7 @@ erDiagram
         int itn_other
         int itn
     }
-    lsm {
+    lsm["gerenciamento de fonte de larvas"] {
         string adm1 PK, FK
         string adm2 PK, FK
         float area
@@ -188,7 +181,7 @@ erDiagram
         int positive
         float average_anopheles
     }
-    vector {
+    vector["Ab. vectores"] {
         string adm1 PK, FK
         string adm2 PK, FK
         int year PK
@@ -201,7 +194,7 @@ erDiagram
         int lav_4
         int pupa
     }
-    resistance {
+    resistance["resistência a inseticidas"] {
         string adm1 PK, FK
         string adm2 PK, FK
         int year PK
@@ -212,9 +205,7 @@ erDiagram
     }
     adm1 ||--o| adm2: contains
     adm2 ||--o| hf: contains
-    adm2 ||--o| adm3: contains
     hf_raw ||--|| hf: match
-    hf ||--o| adm3: contains
 
     adm1 ||--o| pop_adm1: has
     adm1 ||--o| itn_campaign: has
@@ -232,12 +223,13 @@ erDiagram
     hf ||--o| intervention: has
     hf ||--o| routine: has
 ```
+
 ### Match adm1, adm2 and hf
 
 Approaches used:
 
 ```mermaid
-flowchart TD
+flowchart LR 
     A[adm1 shapefile] -->|Get unique adm1| B(Unique adm1 in shapefile)
     C[routine db] -->|Get unique adm1| D(Unique adm1 in routine db)
     B --> E{fuzzy join by string distance}
@@ -256,19 +248,28 @@ flowchart LR
 ```
 
 #### adm1
+In adm1_from_itn_route, there is an extra adm1 called "CNE", which might stands for National Center for Endemic Diseases (CNE) (Sao Tome and Principe). Not sure why, set CNE to NA firstly
+
 
 #### hf
 
 1. hf in routine database
 mismatch after fuzzy matching
 
-POSTO DE QUARTEL
-
+- POSTO DE QUARTEL
+- P. SAÚDE DE V. D´AMÉRICA
+- POSTO DE QUARTEL
+- HOSPITAL DOUTOR QUARESMA DIAS DA GRAÇA
+- POSTO DE NOVA APOSTÓLICA
+- POSTO DE ÁGUA ARROZ
+- POSTO SAÚDE DE PINHEIRA ROÇA
+- P. S. DE RIBEIRA AFONSO should it be Ribeira Afonso I or Ribeira Afonso II(Sta Infancia)?
+- P. S. IRMÃS C. DE R. AFONSO should it be Ribeira Afonso I or Ribeira Afonso II(Sta Infancia)?
 
 ### GIS
 #### Shapefiles
 
-1. aligned shapefiles
+##### Align shapefiles
 > Problem
 
 ![align_shapefiles](<documentation/1. discrepencies between adm1 adm2 and village level shapefile.png>)
@@ -283,7 +284,46 @@ A aligned shapefile with adm1/adm2/adm3 level of information should be created b
 
 I used the crs reprojection with the geo-referencing in QGIS to manually aligned the two islands.
 
-2. localites names same
-During the process, I found some of the localites and adm2 name are the same, but with different area. I will use the adm2 shapefile and generate a list of localites with duplicated names. Those duplicates could be treated as two classes, the first one, same name with adjacent area, the second one, same name without any adjacent area.
+##### Fix same localites names with same and different adm1
 
-3. check localites names with the 
+During the process, I found some of the localites has the exact same name, some of them located in the same district, others don't.
+
+The shapefile country shared with us has duplicated records with the exact same adm1 and adm2. There are records with identical adm1 and adm2 values, some of which are adjacent to each other, while others are not. Attached is the list detailing these duplicates.
+
+I have conducted a preliminary analysis and before proceeding further, I need confirmation from the country office on the following points:
+
+- Merging Adjacent Duplicates:
+Is it permissible to merge the records that are adjacent to each other, considering they share the same adm1 and adm2 values?
+
+- Review of Non-Adjacent Duplicates:
+For the records that are not adjacent but have identical adm1 and adm2 values, country need to review and confirm if these instances are due to naming errors or map inaccuracies? Additionally, it would be helpful to receive guidance on how to proceed with these records. 
+
+##### the creation of the Health facility shapefile, the decision of Unit of analysis
+
+> Problem
+We have a shapefile with adm2 level. I need to create a hf level shapefile. There are two approaches:
+
+1. The first approach
+    - For each adm2, I calculated the closest HF. 
+    - Assign a HF value to each adm2
+    - For each HF group, union all the adm2s
+    
+The problem is that it is that for each HF group, there will be multiple adm1s. Country will be deciding the unit of analysis.
+    
+2. The second approach
+    - Create adm1 shp based on adm2 shp
+    - Within each adm1, for each adm2, calculate the closest HF
+    - Assign a HF value to each adm2
+    - For each HF group, union all the adm2s
+
+##### HFs without any data
+
+1. Uba Budo in Cantagalo.
+2. Hospital Principe in Principe.
+
+##### HFs with incorrect GPS
+
+1. Porto Alegre POINT (6.63361 0.03556)
+2. Santana POINT (6.74718 0.25813)
+
+Resides outside of the adm1.
