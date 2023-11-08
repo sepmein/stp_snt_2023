@@ -89,6 +89,7 @@ transform_shp_get_adm1_hf_within <- function(shp_adm2, shp_hf) {
 # from the data.table there is a column called month, but the data in the month
 # column is in Portuguese, we need to transform it into numbered format.
 transform_month <- function(d) {
+  browser()
   d[month == "Janeiro", month := 1]
   d[month == "Fevereiro", month := 2]
   d[month == "Março", month := 3]
@@ -133,4 +134,43 @@ transform_month <- function(d) {
   
   
   return(d)
+}
+
+
+# fix sex
+
+transform_sex <- function(d) {
+  d[sex == "Female", sex := "F"]
+  d[sex == "Male", sex := "M"]
+  d[sex == "f", sex := "F"]
+  d[sex == "m", sex := "M"]
+}
+
+pyremid_plot <- function(fixed_adm1_estimated_population) {
+  data <- fixed_adm1_estimated_population[,
+                                          lapply(.SD, sum),
+                                          by = .(year, sex),
+                                          .SDcols = c(4:18)] |>
+    # dcast to long format, the year column is the id
+    melt(id.vars = c("year", "sex")) |>
+    mutate(
+      population = case_when(sex == "f" ~ -value,
+                             TRUE ~ value),
+      variable = as.factor(variable)
+    )
+  
+  pop_range <- range(data$population)
+  
+  age_range_seq <- pretty(pop_range, n = 10)
+  
+  data |>
+    ggplot(aes(x = population,
+               y = variable,
+               fill = sex)) +
+    geom_col() +
+    snt::sn_theme() +
+    # scale_x_continuous(
+    #                    labels = abs(age_range_seq)) +
+    scale_fill_brewer(palette = "Dark2") +
+    theme(legend.position = "top") 
 }

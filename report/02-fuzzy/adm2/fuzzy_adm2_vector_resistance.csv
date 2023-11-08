@@ -1,0 +1,8 @@
+adm1.x,adm2.x,adm1.y,adm2.y,adm1.distance,adm2.distance,distance,accepted
+Lobata,Conde,Lobata,Conde,5.55111512312578e-17,5.55111512312578e-17,1.11022302462516e-16,Yes
+Principe,Bela Vista,Principe,Bela Vista,5.55111512312578e-17,5.55111512312578e-17,1.11022302462516e-16,Yes
+Cantagalo,Ribeira Afonso,Cantagalo,Ribeira Afonso,5.55111512312578e-17,5.55111512312578e-17,1.11022302462516e-16,Yes
+Agua Grande,S. Gabriel,Agua Grande,Sao Gabriel,5.55111512312578e-17,0.149494949494949,0.14949494949495,No
+Principe,Pincate,Principe,Picao,5.55111512312578e-17,0.20952380952381,0.20952380952381,No
+Agua Grande,Agua Grande,Agua Grande,Agua Porca,5.55111512312578e-17,0.221212121212121,0.221212121212121,No
+Agua Grande,Riboque Capital,Agua Grande,Sao Marcal,5.55111512312578e-17,0.388888888888889,0.388888888888889,No

@@ -42,7 +42,7 @@ match_adm2 <- function(standard, target) {
     
     joined[, distance := adm1.distance + adm2.distance]
     joined <- joined[, .SD[which.min(distance)], by = .(adm1.x, adm2.x)]
-    joined <- joined[distance > 1e-1]
+    # joined <- joined[distance > 1e-1]
     # sorted by adm1.x adm2.x
     joined <- joined[order(distance)]
     joined[distance <= 1e-1, accepted := "Yes"]

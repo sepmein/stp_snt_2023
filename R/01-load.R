@@ -40,6 +40,33 @@ load_hf <- function(d) {
             lat = as.numeric(lat),
             long = as.numeric(long)
         )
+    # commment indicate the health facility is not functional
+    # Não funcional desde 2022,
+    # so we will remove them
+    dt[is.na(comment)]
+}
+
+load_adm2_hf <- function(f) {
+  
+    d <- read_excel(f) |>
+        as.data.table() |>
+        upData(
+            rename = .q(
+                `Distrito` = adm1,
+                `Localidades` = adm2,
+                `Posto sanitário` = hf
+            ),
+            adm1 = to.plain(adm1),
+            adm2 = to.plain(adm2),
+            hf = str_remove(hf, "PS "),
+            hf = str_remove(hf, "CS de "),
+            hf = str_remove(hf, "CS ")
+        )
+#     d[,
+#       hf := case_when(
+# 
+#       )
+#       ]
 }
 
 #' 2. Load the estimated population data from routine database
@@ -138,6 +165,10 @@ load_routine <- function(d) {
                 `Nome da US` = hf,
                 Mes = month,
                 Ano = year,
+                `Total pacientes consultas por todas as causas` = alladm,
+                `Total pacientes <5` = alladm_u5,
+                `Total pacientes >=5` = alladm_ov5,
+                `Gravidas` = alladm_p,
                 `Total casos suspeitos` = susp,
                 `Total suspeitos <5` = susp_u5,
                 `Total suspeitos >=5` = susp_ov5,
@@ -213,7 +244,7 @@ load_elimination <- function(d) {
 
 #' load case level data for 2022
 load_case_2022 <- function(d) {
-    dt <- read_excel(d, sheet = "Passiva Casos + 2022") |>
+    dt <- read_excel(d, sheet = "Passiva Casos + 2022", range ="A1:F3182") |>
         as.data.table() |>
         upData(
             rename = .q(
@@ -224,20 +255,21 @@ load_case_2022 <- function(d) {
                 IDADE = age,
                 SEXO = sex
             ),
-            month = as.factor(month),
             adm1 = to.plain(adm1),
             adm2 = to.plain(adm2),
             adm1 = as.factor(adm1),
             adm2 = as.factor(adm2),
             hf = as.factor(hf),
-            age = as.numeric(age),
-            sex = as.factor(sex)
+            age = as.numeric(age)
         )
 }
 
 # ‘ active case data for 2022
 load_active_cases_2022 <- function(d) {
-    dt <- read_excel(d, sheet = "Vig. reactiva 2022") |>
+    dt <- read_excel(
+      d, sheet = "Vig. reactiva 2022",
+      range = "A1:F3927"
+                     ) |>
         as.data.table() |>
         upData(
             rename = .q(
@@ -252,10 +284,8 @@ load_active_cases_2022 <- function(d) {
             adm2 = to.plain(adm2),
             adm1 = as.factor(adm1),
             adm2 = as.factor(adm2),
-            month = as.factor(month),
             hf = as.factor(hf),
-            age = as.numeric(age),
-            sex = as.factor(sex)
+            age = as.numeric(age)
         )
 }
 
@@ -281,11 +311,10 @@ load_routine_intervention <- function(d) {
                 `Número de MILDAs distribuídos através do sistema de vacinação` = itn_v,
                 `Número de rupturas de stock registadas por mês` = stock
             ),
+            drop = .q(`Total Gravida que fizeram a CPN1`),
             adm1 = to.plain(adm1),
-            adm1 = as.factor(adm1),
             hf = as.factor(hf),
             year = as.numeric(year),
-            month = as.factor(month),
             anc1 = as.numeric(anc1),
             anc2 = as.numeric(anc2),
             anc3 = as.numeric(anc3),
@@ -345,8 +374,11 @@ load_itn_campaign <- function(d) {
     dt <- read_excel(d, sheet = "MTILD (Massa)", skip = 1) |>
         as.data.table() |>
         upData(rename = .q(Distrito = adm1, Total = itn),
-               adm1 = to.plain(adm1),
-               adm1 = as.factor(adm1))
+               keep = .q(adm1, itn),
+               adm1 = to.plain(adm1)
+               )
+    
+    dt[adm1 != "Total"]
 }
 
 #' load itn routine
@@ -387,8 +419,12 @@ load_lsm <- function(d) {
             ),
             adm1 = to.plain(adm1),
             adm2 = to.plain(adm2),
-            adm1 = as.factor(adm1),
-            adm2 = as.factor(adm2)
+            positive_rate = positive / sampled,
+            average_anopheles = as.numeric(average_anopheles),
+            area = as.numeric(area),
+            anopheles = average_anopheles * sampled,
+            scanned = as.numeric(str_remove(scanned, "%")) / 100,
+            scanned_area = area * scanned
         )
 }
 
@@ -411,10 +447,7 @@ load_vector <- function(d) {
                 Pupa = pupa
             ),
             adm1 = to.plain(adm1),
-            adm2 = to.plain(adm2),
-            adm1 = as.factor(adm1),
-            adm2 = as.factor(adm2),
-            month = as.factor(month)
+            adm2 = to.plain(adm2)
         )
 }
 
@@ -464,44 +497,21 @@ extract_adm1_adm2_nmcp <- function(shp) {
 
 #' I found some of the the record are duplicates records
 #' here is the function to identify the duplicates records
-#' and classify them based on the whether or not they are
-#' adjacent to each other
-#' extract_duplicated_adm1_adm2_nmcp <- function(shp) {
-#'     #' find the adjacent records
-#'     dups <- shp |>
-#'         group_by(adm1, adm2) |>
-#'         filter(n() > 1)
-#'     
-#'     # Create a function to check if two polygons are adjacent
-#'     are_adjacent <- function(poly1, poly2) {
-#'         st_touches(poly1, poly2)
-#'     }
-#'     
-#'     # Use the function to check adjacency and classify duplicates
-#'     browser()
-#'     dups <- dups %>%
-#'         mutate(adjacent = purrr::map2_dbl(adm1, adm2, ~ {
-#'             # Filter the shapefile to find the polygons with the same adm1 and adm2
-#'             same_adm1_adm2 <- shp %>%
-#'                 filter(adm1 == .x, adm2 == .y)
-#'             
-#'             # Check if any of the polygons are adjacent to each other
-#'             any_adjacent <- any(sapply(same_adm1_adm2$geometry, function(poly1) {
-#'                 any(sapply(same_adm1_adm2$geometry, function(poly2) {
-#'                     if (!is.na(poly1) && !is.na(poly2)) {
-#'                         are_adjacent(poly1, poly2)
-#'                     } else {
-#'                         FALSE
-#'                     }
-#'                 }))
-#'             }))
-#'             
-#'             
-#'             if (any_adjacent) {
-#'                 return(1)  # Mark as adjacent
-#'             } else {
-#'                 return(2)  # Mark as non-adjacent
-#'             }
-#'         }))
-#'     return(dups)
-#' }
+extract_duplicated_adm1_adm2_nmcp <- function(shp) {
+    #' find the adjacent records
+    shp |>
+        mutate(adm1 == to.plain(adm1),
+               adm2 == to.plain(adm2))
+    
+    dups_consider_adm1_adm2 <-  shp |>
+        group_by(adm1, adm2) |>
+        filter(n() > 1) 
+    
+    dups_consider_adm1_adm2 |>
+        st_write("report/01-shapefile/duplicated_adm1_adm2.shp", delete_layer = TRUE)
+    
+    dups_consider_adm1_adm2 |>
+        st_drop_geometry() |>
+        fwrite("report/01-shapefile/duplicated_adm1_adm2.csv")
+
+}
